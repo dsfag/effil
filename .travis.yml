@@ -12,8 +12,7 @@ env:
   - LUA="luajit 2.0"
 
 os:
-  - linux
-  - osx
+  - windows
 
 addons:
   apt:
@@ -23,10 +22,26 @@ addons:
       - g++-5
 
 before_install:
-  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX=g++-5; sudo pip install hererocks; fi
-  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then export CXX=clang++; brew update;  brew upgrade python; sudo pip3 install hererocks; fi
+  - if [[ $TRAVIS_OS_NAME == "linux" ]]; then
+      export CXX=g++-5;
+      sudo pip install hererocks;
+    fi
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+      export CXX=clang++; brew update;
+      brew upgrade python;
+      sudo pip3 install hererocks;
+    fi
+  - if [[ $TRAVIS_OS_NAME == "windows" ]]; then
+      cinst -y python;
+      export PATH="$(powershell -Command '("Process", "Machine" | % { [Environment]::GetEnvironmentVariable("PATH", $_) -Split ";" -Replace "\\$", ""} | Select -Unique | % { cygpath $_ }) -Join ":"')";
+      pip3 install hererocks;
+    fi
   - hererocks lua-pkg --$LUA -rlatest
-  - source lua-pkg/bin/activate
+  - if [[ $TRAVIS_OS_NAME == "windows" ]]; then
+      call lua-pkg/bin/activate;
+    else
+      source lua-pkg/bin/activate;
+    fi;
 
 script:
   - ci/test_all.sh -DLUA_INCLUDE_DIR="$PWD/lua-pkg/include"
