@@ -37,11 +37,7 @@ before_install:
       pip3 install hererocks;
     fi
   - hererocks lua-pkg --$LUA -rlatest
-  - if [[ $TRAVIS_OS_NAME == "windows" ]]; then
-      call lua-pkg/bin/activate;
-    else
-      source lua-pkg/bin/activate;
-    fi;
+  - source lua-pkg/bin/activate;
 
 script:
   - ci/test_all.sh -DLUA_INCLUDE_DIR="$PWD/lua-pkg/include"
